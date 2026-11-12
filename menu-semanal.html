@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menú semanal para dos</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5ef;--fg:#1c2b24;--mut:#5d6b64;--card:#fff;--line:#dbe3d8;--him:#2d5f8f;--himbg:#e6eef6;--her:#3f7d34;--herbg:#e7f2e3;--sh:#c98a14;--shbg:#fbf1da;--chip:#e3eadf}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a16;--fg:#e8efe9;--mut:#9aaaa0;--card:#1b2620;--line:#2c3a32;--him:#7fb0e0;--himbg:#1b2a38;--her:#8fcf7f;--herbg:#1d2e1a;--sh:#e8b84a;--shbg:#33290f;--chip:#243029}}
+:root[data-theme="dark"]{--bg:#121a16;--fg:#e8efe9;--mut:#9aaaa0;--card:#1b2620;--line:#2c3a32;--him:#7fb0e0;--himbg:#1b2a38;--her:#8fcf7f;--herbg:#1d2e1a;--sh:#e8b84a;--shbg:#33290f;--chip:#243029}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.45 "DM Sans",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font:800 clamp(28px,7vw,40px)/1.05 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 6px;letter-spacing:-.02em}
+.sub{color:var(--mut);margin:0 0 18px}
+.legend{display:flex;gap:14px;margin:0 0 16px;font-size:14px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+nav.tabs{display:flex;gap:6px;background:var(--chip);padding:4px;border-radius:14px;margin-bottom:16px}
+nav.tabs button{flex:1;border:0;background:transparent;color:var(--fg);font:700 15px "DM Sans",sans-serif;padding:10px 6px;border-radius:10px;cursor:pointer}
+nav.tabs button[aria-selected="true"]{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+button:focus-visible{outline:3px solid var(--sh);outline-offset:2px}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.days button{flex:0 0 auto;min-width:58px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);border-radius:14px;padding:8px 10px;font:700 15px "DM Sans",sans-serif;cursor:pointer;text-align:center}
+.days button small{display:block;font-weight:400;font-size:11px;color:var(--mut)}
+.days button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.days button[aria-pressed="true"] small{color:var(--bg);opacity:.75}
+h2{font:800 22px/1.1 "Bricolage Grotesque",sans-serif;margin:0 0 12px}
+.meal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.meal h3{margin:0 0 8px;font:700 15px "DM Sans",sans-serif;color:var(--mut)}
+.shared{background:var(--shbg);border-radius:10px;padding:10px 12px;border-left:5px solid var(--sh)}
+.split{display:grid;gap:8px}
+.him,.her{border-radius:10px;padding:10px 12px}
+.him{background:var(--himbg);border-left:5px solid var(--him)}
+.her{background:var(--herbg);border-left:5px solid var(--her)}
+.who{display:block;font-weight:700;font-size:13px;margin-bottom:2px}
+.him .who{color:var(--him)}.her .who{color:var(--her)}
+@media(min-width:560px){.split{grid-template-columns:1fr 1fr}}
+.sec{margin:0 0 18px}
+.sec h3{font:800 17px "Bricolage Grotesque",sans-serif;margin:0 0 6px}
+label.it{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}
+label.it input{width:20px;height:20px;margin-top:1px;accent-color:var(--her);flex:0 0 auto}
+label.it input:checked+span{text-decoration:line-through;color:var(--mut)}
+.note{color:var(--mut);font-size:14px;margin:0 0 14px}
+.reset{border:1.5px solid var(--line);background:transparent;color:var(--fg);border-radius:10px;padding:8px 12px;font:700 14px "DM Sans",sans-serif;cursor:pointer}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>Menú semanal para dos</h1>
+<p class="sub">Se repite todas las semanas. Misma base de compras, cambia solo la proteína.</p>
+<div class="legend"><span><i class="dot" style="background:var(--him)"></i>Él</span><span><i class="dot" style="background:var(--her)"></i>Ella</span><span><i class="dot" style="background:var(--sh)"></i>Los dos</span></div>
+<nav class="tabs" role="tablist">
+<button role="tab" aria-selected="true" data-t="menu">Menú</button>
+<button role="tab" aria-selected="false" data-t="compras">Compras</button>
+<button role="tab" aria-selected="false" data-t="prep">Meal prep</button>
+</nav>
+<section id="menu"><div class="days" id="days"></div><div id="day"></div></section>
+<section id="compras" hidden></section>
+<section id="prep" hidden></section>
+</main>
+<script>
+var DIAS=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+var A={d:"Yogur natural + 3 cdas de avena o granola + banana + nueces y chía",m:"2 tostadas integrales con queso untable o ricota + tomate + fruta"};
+var B={d:"2 tostadas integrales con ricota o palta + huevo revuelto + fruta",m:"Licuado de leche o yogur + banana + avena + almendras"};
+var M=[
+{k:A,al:["Carne a la plancha 180 g con chimichurri + papa 350 g al horno con romero + ensalada de rúcula, cherry y zanahoria","Salteado de soja texturizada (60 g secos) con cebolla, morrón y tomate + papa 300 g al horno + la misma ensalada"],ce:["Ensalada tibia de batata 300 g con atún 120 g, 2 huevos duros, rúcula y cebolla morada","La misma ensalada con 3 huevos duros y ½ taza de garbanzos"]},
+{k:B,al:["Hamburguesa casera 180 g + batata 350 g en gajos + coleslaw de repollo colorado","2 hamburguesas de lentejas y avena + batata 300 g en gajos + coleslaw"],ce:["Omelette de 3 huevos con queso y espinaca + papa 300 g con perejil y ajo + ensalada de tomate y albahaca","Lo mismo, con papa 250 g"]},
+{k:A,al:["Bandeja al horno: carne 180 g sobre papa 350 g y zanahorias, con cebolla morada y tomillo","Bandeja al horno: garbanzos asados con papa 300 g, zanahorias y cebolla morada + salsa de yogur y limón"],ce:["Carne a la plancha 180 g + batata 300 g + ensalada de espinaca baby, zanahoria y remolacha","2 porciones de tarta de zapallitos y ricota + batata 200 g + la misma ensalada"]},
+{k:B,al:["Albóndigas 180 g en salsa de tomate + puré rústico de papa 350 g + brócoli con ajo y limón","Albóndigas de lentejas en salsa de tomate + puré rústico 300 g + brócoli"],ce:["Papa rellena (300 g) con atún 120 g, 2 huevos duros, verdeo y yogur + ensalada de lechuga y pepino","Papa rellena (300 g) con ricota, espinaca y 2 huevos duros + la misma ensalada"]},
+{k:A,al:["Carne a la plancha 180 g + batata 350 g + salteado de zapallitos, morrón y cebolla","Tofu marinado (150 g) con soja, jengibre y limón, salteado con los mismos zapallitos y morrón + batata 300 g"],ce:["Ensalada rusa liviana con papa 250 g, atún 120 g, 2 huevos, zanahoria y arvejas","Ensalada rusa liviana con papa 250 g, 2 huevos, garbanzos, queso port salut, zanahoria y arvejas"]},
+{k:B,al:["Hamburguesa casera 180 g + papa 350 g rústica + ensalada criolla","2 hamburguesas de garbanzos y quinoa + papa 300 g rústica + ensalada criolla + salsa de yogur"],ce:["Tortilla de papa 250 g y espinaca (3 huevos) + ensalada de lechuga, tomate y rabanitos",null]},
+{k:A,al:["Carne al horno 180 g + batata 350 g + verduras asadas (zapallo, berenjena, cebolla morada)","Estofado de lentejas con batata 300 g, zanahoria, apio, morrón y espinaca"],ce:["Omelette de 3 huevos relleno de ricota 100 g, champiñones y verdeo + ensalada de rúcula","Lo mismo, con 1 tostada integral"]}
+];
+var COMPRAS=[
+["Carnicería",["Cuadril, peceto o nalga: 1 kg (porcionar en 180 g)","Carne picada magra: 600 g"]],
+["Dietética",["Lentejas secas 750 g","Garbanzos secos 750 g (o 4 frascos cocidos)","Soja texturizada 250 g","Arroz yamaní 1 kg","Quinoa 250 g","Avena 1 kg","Nueces y almendras, 200 g de cada una","Semillas (chía, lino, girasol) 200 g","Comino, pimentón ahumado, orégano, ají molido"]],
+["Almacén y súper",["Atún al natural: 3 latas","Tomate triturado: 3 cajas","Pan integral: 2 paquetes","Tapas de tarta integrales: 1 paquete","Aceite de oliva, mostaza, vinagre","Aceitunas: 1 frasco","Salsa de soja"]],
+["Heladera",["Huevos: 2 maples","Yogur natural sin azúcar: 2 kg","Leche: 3 L","Ricota: 1 kg","Queso port salut o cremoso: 500 g","Queso untable: 1 pote","Queso rallado: 150 g","Tofu firme: 2 paquetes de 300 g"]],
+["Verdulería",["Papa 4,5 kg y batata 3 kg","Cebolla 1,5 kg, cebolla morada 2, verdeo 1 atado, ajo 2 cabezas","Morrón rojo 4","Tomate 1,5 kg y cherry 1 bandeja","Zanahoria 1,5 kg","Zapallitos 1,5 kg, berenjena 1, zapallo 1 trozo","Espinaca 3 atados y 1 bolsa de baby","Brócoli 1, repollo colorado ¼, remolacha 2","Apio 1, champiñones 1 bandeja, pepino 2, rabanitos 1","Rúcula y lechuga","Arvejas: 1 lata o bolsa congelada","Perejil, albahaca o menta, jengibre","Palta 4, limones 6","Fruta: 8 bananas, 8 manzanas, 6 mandarinas"]]
+];
+var PREP=[
+["Primero","Hervir 500 g de lentejas y 500 g de garbanzos (olla a presión o frascos cocidos) y cocinar 2 tazas de arroz yamaní."],
+["Horno 1","Bandeja con papas y batatas cortadas para lunes y martes; otra con zanahoria y garbanzos asados con especias para el miércoles."],
+["Mezclas vegetales","Con lentejas, avena, cebolla, ajo, huevo y especias: 4 hamburguesas y 8 albóndigas. Con garbanzos y quinoa: 2 hamburguesas."],
+["Carne de él","Formar 3 porciones de 180 g de picada y porcionar la carne en bolsas de 180 g."],
+["Huevos y salsa","Hervir 12 huevos duros y hacer una olla de salsa de tomate con cebolla y ajo."],
+["Tarta","Hornear la de zapallitos y ricota para el miércoles."],
+["Granola","Avena, nueces, semillas y canela, 20 minutos al horno."],
+["Verduras","Lavar y cortar zanahoria, morrón, cebolla y hojas; guardar en tuppers."],
+["Heladera (lun a mié)","Legumbres cocidas, arroz, huevos duros, tarta, salsa, verduras cortadas, papas y batatas cocidas."],
+["Freezer (jue a dom)","Hamburguesas, albóndigas, carne porcionada y tofu. Pasarlos a la heladera la noche anterior."]
+];
+function el(id){return document.getElementById(id)}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function st(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var cur=(new Date().getDay()+6)%7;
+function renderDays(){
+  el("days").innerHTML=DIAS.map(function(d,i){return '<button aria-pressed="'+(i===cur)+'" data-i="'+i+'">'+d.slice(0,3)+'<small>'+(i===(new Date().getDay()+6)%7?'hoy':'')+'</small></button>'}).join("");
+}
+function pair(a,b){
+  if(b===null)return '<div class="shared"><span class="who" style="color:var(--sh)">Los dos</span>'+esc(a)+'</div>';
+  return '<div class="split"><div class="him"><span class="who">Él</span>'+esc(a)+'</div><div class="her"><span class="who">Ella</span>'+esc(b)+'</div></div>';
+}
+function renderDay(){
+  var m=M[cur];
+  el("day").innerHTML='<h2>'+DIAS[cur]+'</h2>'+
+  '<div class="meal"><h3>Desayuno</h3><div class="shared">'+esc(m.k.d)+'</div></div>'+
+  '<div class="meal"><h3>Almuerzo</h3>'+pair(m.al[0],m.al[1])+'</div>'+
+  '<div class="meal"><h3>Merienda</h3><div class="shared">'+esc(m.k.m)+'</div></div>'+
+  '<div class="meal"><h3>Cena</h3>'+pair(m.ce[0],m.ce[1])+'</div>';
+}
+function renderList(id,key,data,withNote){
+  var s=st(key),h=withNote?'<p class="note">Tocá cada ítem para tacharlo mientras comprás. Cantidades para 2 personas, 1 semana.</p>':'';
+  data.forEach(function(sec,si){
+    h+='<div class="sec"><h3>'+sec[0]+'</h3>'+sec[1].map(function(t,i){var k=si+"-"+i;return '<label class="it"><input type="checkbox" data-k="'+k+'"'+(s[k]?' checked':'')+'><span>'+esc(t)+'</span></label>'}).join("")+'</div>';
+  });
+  h+='<button class="reset" data-r="'+key+'">Destildar todo</button>';
+  el(id).innerHTML=h;
+}
+function renderPrep(){
+  var d=PREP.map(function(p){return [p[0],[p[1]]]});
+  var s=st("prep"),h='<p class="note">Domingo, 2,5 a 3 horas. Seguí este orden para aprovechar los tiempos de cocción.</p>';
+  PREP.forEach(function(p,i){h+='<label class="it"><input type="checkbox" data-k="'+i+'"'+(s[i]?' checked':'')+'><span><b>'+p[0]+':</b> '+esc(p[1])+'</span></label>'});
+  h+='<p style="margin-top:14px"><button class="reset" data-r="prep">Destildar todo</button></p>';
+  el("prep").innerHTML=h;
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.i!==undefined){cur=+b.dataset.i;renderDays();renderDay();return}
+  if(b.dataset.t){
+    document.querySelectorAll("nav.tabs button").forEach(function(x){x.setAttribute("aria-selected",x===b)});
+    ["menu","compras","prep"].forEach(function(t){el(t).hidden=t!==b.dataset.t});return}
+  if(b.dataset.r){sv(b.dataset.r,{});if(b.dataset.r==="prep")renderPrep();else renderList("compras","compras",COMPRAS,true)}
+});
+document.addEventListener("change",function(e){
+  var c=e.target;if(c.type!=="checkbox")return;
+  var key=el("prep").contains(c)?"prep":"compras",s=st(key);s[c.dataset.k]=c.checked;sv(key,s);
+  c.nextElementSibling.style.textDecoration="";
+});
+renderDays();renderDay();renderList("compras","compras",COMPRAS,true);renderPrep();
+</script>
+</body>
+</html>
