@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Menú semanal para dos</title>
+<title>Menú rotativo para dos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f2f5ef;--fg:#1c2b24;--mut:#5d6b64;--card:#fff;--line:#dbe3d8;--him:#2d5f8f;--himbg:#e6eef6;--her:#3f7d34;--herbg:#e7f2e3;--sh:#c98a14;--shbg:#fbf1da;--chip:#e3eadf}
@@ -45,104 +45,190 @@ label.it input{width:20px;height:20px;margin-top:1px;accent-color:var(--her);fle
 label.it input:checked+span{text-decoration:line-through;color:var(--mut)}
 .note{color:var(--mut);font-size:14px;margin:0 0 14px}
 .reset{border:1.5px solid var(--line);background:transparent;color:var(--fg);border-radius:10px;padding:8px 12px;font:700 14px "DM Sans",sans-serif;cursor:pointer}
+details.rc{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;padding:0 14px}
+details.rc summary{cursor:pointer;font-weight:700;padding:13px 0;list-style:none}
+details.rc summary::-webkit-details-marker{display:none}
+details.rc summary::after{content:"+";float:right;color:var(--mut);font-size:20px;line-height:1}
+details.rc[open] summary::after{content:"–"}
+details.rc .ing{color:var(--mut);font-size:14px;margin:0 0 8px}
+details.rc ol{margin:0 0 14px;padding-left:20px}
+details.rc li{margin-bottom:6px}
+.gh{font:800 18px "Bricolage Grotesque",sans-serif;margin:18px 0 8px}
+nav.tabs button{font-size:14px}
+.wk{display:flex;gap:8px;margin:0 0 12px}.wk button{flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:9px;font:700 15px "DM Sans",sans-serif;cursor:pointer}.wk button[aria-pressed="true"]{background:var(--her);border-color:var(--her);color:#fff}.rb{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.rbtn{border:1.5px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:6px 12px;font:700 13px "DM Sans",sans-serif;cursor:pointer}.rbtn:focus-visible,.wk button:focus-visible{outline:3px solid var(--sh);outline-offset:2px}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main>
-<h1>Menú semanal para dos</h1>
-<p class="sub">Se repite todas las semanas. Misma base de compras, cambia solo la proteína.</p>
+<h1>Menú rotativo para dos</h1>
+<p class="sub">Dos semanas que se alternan: ningún plato se repite en 14 días.</p>
 <div class="legend"><span><i class="dot" style="background:var(--him)"></i>Él</span><span><i class="dot" style="background:var(--her)"></i>Ella</span><span><i class="dot" style="background:var(--sh)"></i>Los dos</span></div>
+<div class="wk" id="wk"></div>
 <nav class="tabs" role="tablist">
 <button role="tab" aria-selected="true" data-t="menu">Menú</button>
 <button role="tab" aria-selected="false" data-t="compras">Compras</button>
 <button role="tab" aria-selected="false" data-t="prep">Meal prep</button>
+<button role="tab" aria-selected="false" data-t="recetas">Recetas</button>
 </nav>
 <section id="menu"><div class="days" id="days"></div><div id="day"></div></section>
 <section id="compras" hidden></section>
 <section id="prep" hidden></section>
+<section id="recetas" hidden></section>
 </main>
 <script>
 var DIAS=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
-var A={d:"Yogur natural + 3 cdas de avena o granola + banana + nueces y chía",m:"2 tostadas integrales con queso untable o ricota + tomate + fruta"};
-var B={d:"2 tostadas integrales con ricota o palta + huevo revuelto + fruta",m:"Licuado de leche o yogur + banana + avena + almendras"};
-var M=[
-{k:A,al:["Carne a la plancha 180 g con chimichurri + papa 350 g al horno con romero + ensalada de rúcula, cherry y zanahoria","Salteado de soja texturizada (60 g secos) con cebolla, morrón y tomate + papa 300 g al horno + la misma ensalada"],ce:["Ensalada tibia de batata 300 g con atún 120 g, 2 huevos duros, rúcula y cebolla morada","La misma ensalada con 3 huevos duros y ½ taza de garbanzos"]},
-{k:B,al:["Hamburguesa casera 180 g + batata 350 g en gajos + coleslaw de repollo colorado","2 hamburguesas de lentejas y avena + batata 300 g en gajos + coleslaw"],ce:["Omelette de 3 huevos con queso y espinaca + papa 300 g con perejil y ajo + ensalada de tomate y albahaca","Lo mismo, con papa 250 g"]},
-{k:A,al:["Bandeja al horno: carne 180 g sobre papa 350 g y zanahorias, con cebolla morada y tomillo","Bandeja al horno: garbanzos asados con papa 300 g, zanahorias y cebolla morada + salsa de yogur y limón"],ce:["Carne a la plancha 180 g + batata 300 g + ensalada de espinaca baby, zanahoria y remolacha","2 porciones de tarta de zapallitos y ricota + batata 200 g + la misma ensalada"]},
-{k:B,al:["Albóndigas 180 g en salsa de tomate + puré rústico de papa 350 g + brócoli con ajo y limón","Albóndigas de lentejas en salsa de tomate + puré rústico 300 g + brócoli"],ce:["Papa rellena (300 g) con atún 120 g, 2 huevos duros, verdeo y yogur + ensalada de lechuga y pepino","Papa rellena (300 g) con ricota, espinaca y 2 huevos duros + la misma ensalada"]},
-{k:A,al:["Carne a la plancha 180 g + batata 350 g + salteado de zapallitos, morrón y cebolla","Tofu marinado (150 g) con soja, jengibre y limón, salteado con los mismos zapallitos y morrón + batata 300 g"],ce:["Ensalada rusa liviana con papa 250 g, atún 120 g, 2 huevos, zanahoria y arvejas","Ensalada rusa liviana con papa 250 g, 2 huevos, garbanzos, queso port salut, zanahoria y arvejas"]},
-{k:B,al:["Hamburguesa casera 180 g + papa 350 g rústica + ensalada criolla","2 hamburguesas de garbanzos y quinoa + papa 300 g rústica + ensalada criolla + salsa de yogur"],ce:["Tortilla de papa 250 g y espinaca (3 huevos) + ensalada de lechuga, tomate y rabanitos",null]},
-{k:A,al:["Carne al horno 180 g + batata 350 g + verduras asadas (zapallo, berenjena, cebolla morada)","Estofado de lentejas con batata 300 g, zanahoria, apio, morrón y espinaca"],ce:["Omelette de 3 huevos relleno de ricota 100 g, champiñones y verdeo + ensalada de rúcula","Lo mismo, con 1 tostada integral"]}
+var DE=["Yogur natural + avena o granola + fruta + nueces","2 tostadas de pan casero con ricota o palta + huevo revuelto","Panqueques de avena y banana con yogur y manzana rallada","Porridge de avena con leche, canela, manzana y semillas"];
+var ME=["Tostada con queso untable y tomate + fruta","Licuado de leche o yogur + banana + avena","Budín de yogur integral + té con leche","Tostado de pan casero con queso y tomate + fruta"];
+var IDX=[{d:[0,1,2,3,0,1,2],m:[1,2,3,0,1,2,3]},{d:[2,3,0,1,2,3,0],m:[0,1,3,0,1,3,0]}];
+var MENU=[[
+["Pastel de papas de carne (180 g de picada) + puré 350 g + ensalada de apio, rúcula y perejil","Pastel de papas de lentejas y champiñones + puré 300 g + la misma ensalada","Shakshuka de 3 huevos + batata asada 250 g + pan casero","Shakshuka de 3 huevos y queso fresco + batata 200 g + pan casero",["pastel","ensal"],["shak"]],
+["80 g de fideos con boloñesa de carne (180 g) y queso rallado + ensalada de rúcula y tomate","70 g de fideos integrales con boloñesa de lentejas (1 taza) y zanahoria rallada + la misma ensalada","4 torrejas de acelga al horno con alioli + 1 huevo duro + papa rústica 250 g","5 torrejas con alioli + ensalada de garbanzos y tomate + papa 200 g",["bolo"],["torrejas"]],
+["Malfatti de espinaca y ricota con salsa de hongos + pollo grillado 180 g + hojas verdes","Porción grande de malfatti con salsa de hongos + hojas verdes con nueces","Sopa crema de calabaza + 2 tostadas de pan casero con atún 120 g y tomate","Sopa crema de calabaza con semillas + 2 tostadas con huevo revuelto (3 huevos) y queso",["malfatti"],["sopacal"]],
+["Risotto de batata con tiras de cuadril 180 g + ensalada verde","Risotto de batata con garbanzos asados y huevo poché + ensalada verde","Berenjenas rellenas de arroz integral y atún 120 g, gratinadas + 2 huevos duros","Berenjenas rellenas de arroz integral, garbanzos y queso crema + 2 huevos duros",["risotto"],["berenj"]],
+["Milanesas de pollo al horno 180 g + puré cremoso 350 g + ensalada de chauchas y remolacha","2 milanesas de calabaza rellenas de muzzarella (o de soja) + puré 300 g + la misma ensalada","Tarta de acelga cremosa + ensalada mediterránea con atún 120 g","Tarta de acelga cremosa + ensalada mediterránea con garbanzos y queso",["milaca","pure","ensal"],["tartaac","ensal"]],
+["Musaka de berenjena, zapallito y papa con capa de carne (180 g)","Musaka con capa de lentejas","Calzón de jamón y muzzarella + ensalada","Calzón de espinaca, ricota y huevo + ensalada",["musaka"],["calzon"]],
+["Guiso de lentejas con roast beef 180 g + pan casero","Guiso de lentejas veggie con 1 huevo duro y queso rallado + pan casero","Panqueques salados rellenos de ricota 100 g, espinaca y jamón, con salsa de tomate","Panqueques rellenos de ricota y espinaca, con salsa de tomate y queso gratinado",["guiso"],["panq"]]
+],[
+["Pollo grillado al limón 180 g + papa 350 g al horno + coliflor gratinada","Medallones de mijo (o quinoa) y calabaza, 3, con salsa de yogur + papa 250 g + coliflor gratinada","Spaghetti 70 g con brócoli, ajo y atún 120 g + 2 huevos duros","Spaghetti integral 70 g con brócoli, ajo y 3 huevos poché + queso rallado",["mijo","coliflor"],["spag"]],
+["Canelones de carne y espinaca (180 g de carne) con salsa de tomate","Canelones de ricota, espinaca y nuez con salsa de tomate + ensalada de rúcula y tomate","Tortilla de papa, cebolla y morrón (3 huevos) + ensalada de rúcula y remolacha","La misma tortilla con queso + ensalada de rúcula, remolacha y nueces",["canel"],["tortilla"]],
+["Wok de vegetales con tiras de carne 180 g y 70 g de spaghetti","Wok de vegetales con tofu 150 g y 70 g de spaghetti integral","Revuelto gramajo al horno: papa en bastones 250 g + 3 huevos + jamón","Gramajo vegetariano: papa 200 g + 3 huevos + arvejas y queso",["wok"],["gramajo"]],
+["Carbonada (carne 180 g, papa, batata, zapallo y choclo)","Carbonada de porotos alubia con papa, zapallo y choclo + queso rallado","Frittata de espinaca y calabaza (3 huevos) + batata asada 250 g","Frittata con queso + ensalada tibia de lentejas + batata 200 g",["carbonada"],["frittata"]],
+["Hamburguesa casera 180 g en pan casero + batata al horno 300 g + lechuga, tomate y cebolla morada","Hamburguesa de lentejas o garbanzos en pan casero + batata 250 g + los mismos extras","Ensalada niçoise: papa 250 g, chauchas, tomate, 2 huevos y atún 120 g","Niçoise con garbanzos, queso y 2 huevos",["hamb"],["nicoise"]],
+["Lasaña de boloñesa de carne (180 g) y espinaca","Lasaña de boloñesa de lentejas y espinaca","Pizzeta de masa casera con muzzarella, tomate y jamón + ensalada","Pizzeta de muzzarella, tomate, espinaca y huevo + ensalada",["lasana","bolo"],["pizzeta"]],
+["Roast beef al horno 180 g con papas y batatas rústicas y zanahorias glaseadas con mostaza","Zapallitos redondos rellenos de arroz integral, lentejas y queso + papas y batatas rústicas","Sopa de verduras con fideos + tostada de pan casero con atún 120 g y tomate","Sopa de verduras con garbanzos + tostadas con ricota y huevo",["zrell"],["sopaverd"]]
+]];
+var YAPA=[["Budín de yogur y limón con harina integral","budin"],["Hummus casero de garbanzos para picar con verduras y pan","hummus"]];
+var COMPRAS=[[
+["Carnicería y fiambres",["Carne picada magra 600 g","Cuadril o roast beef 400 g","Pechuga de pollo 500 g","Jamón cocido 150 g"]],
+["Dietética y almacén",["Lentejas secas 600 g","Garbanzos secos 250 g","Fideos: 200 g comunes y 200 g integrales","Arroz doble carolina 200 g y arroz integral 250 g","Harina integral 1 kg, harina 000 1 kg y levadura","Avena 300 g, nueces 100 g, semillas","Atún al natural: 3 latas","Tomate triturado: 5 latas o cajas","Caldo en cubos, pimentón, comino, nuez moscada, orégano, laurel"]],
+["Heladera",["Huevos: 45","Ricota 1 kg","Muzzarella o port salut 600 g y queso rallado 250 g","Crema de leche: 2 potes chicos; queso crema: 1 pote","Yogur natural 1,5 kg, leche 2 L, manteca 100 g"]],
+["Verdulería",["Papa 4 kg y batata 1,5 kg","Calabaza 1 kg","Espinaca 5 atados y acelga 2 atados","Champiñones 2 bandejas","Berenjena 4 y zapallitos 4","Cebolla 2 kg, morrón rojo 3, ajo 2 cabezas, puerro 2","Zanahoria 1 kg, apio 1 atado, remolacha 2, chauchas 200 g","Tomate 1,5 kg, rúcula 2 atados, lechuga 1","Limones 5, perejil 2 atados, verdeo 1 atado","Fruta: bananas, manzanas, mandarinas"]]
+],[
+["Carnicería y fiambres",["Carne picada magra 600 g","Cuadril o roast beef 800 g (wok, carbonada y horno del domingo)","Pechuga de pollo 250 g","Jamón cocido 150 g"]],
+["Dietética y almacén",["Mijo (o quinoa) 250 g","Lentejas secas 400 g, garbanzos secos 400 g, porotos alubia 250 g","Tofu firme 300 g","Spaghetti: 200 g comunes y 200 g integrales; placas o canelones: 1 paquete","Arroz integral 250 g","Harina integral 1 kg, harina 000 1 kg y levadura","Avena 300 g, nueces 100 g, semillas, tahini","Atún al natural: 3 latas","Tomate triturado: 5 latas o cajas","Caldo en cubos, pimentón, comino, mostaza, miel"]],
+["Heladera",["Huevos: 45","Ricota 600 g","Muzzarella 800 g y queso rallado 250 g","Crema de leche: 1 pote; queso crema: 1 pote","Yogur natural 1,5 kg, leche 2 L, manteca 50 g"]],
+["Verdulería",["Papa 4,5 kg y batata 2 kg","Calabaza 1,5 kg, zapallo 1 trozo, zapallitos redondos 4, choclo 4","Coliflor 1 y brócoli 2","Espinaca 3 atados y champiñones 1 bandeja","Zucchini 2, berenjena 1, morrón rojo 3, arvejas","Zanahoria 1,5 kg y chauchas 250 g","Cebolla 2 kg y ajo 2 cabezas","Tomate 1,5 kg, rúcula 2 atados, lechuga 1, remolacha 2","Limones 5, perejil 2 atados, verdeo 1 atado","Fruta: bananas, manzanas, mandarinas"]]
+]];
+var PREP=[[
+["Legumbres","Hervir 600 g de lentejas y 250 g de garbanzos."],
+["Masa de pan","Hacer la masa de pan casero y dejarla de un día para el otro en la heladera (sirve para los calzones del sábado)."],
+["Salsas","2 ollas de salsa de tomate y una boloñesa doble, mitad de carne y mitad de lentejas; porcionar."],
+["Freezer","Armar las torrejas de acelga y las milanesas de calabaza y de pollo; freezar crudas."],
+["Puré y masas","Puré de papa para el pastel del lunes, masa de tarta y masa de panqueques."],
+["Dulce y huevos","Hornear el budín de yogur y hervir 12 huevos."],
+["Conservación","Heladera de lunes a miércoles; freezer de jueves a domingo, pasando a la heladera la noche anterior."]
+],[
+["Legumbres","Hervir 400 g de lentejas, 400 g de garbanzos y 250 g de alubias."],
+["Masa de pan","Hacer la masa de pan casero para las hamburguesas del viernes y las pizzetas del sábado."],
+["Salsas","Boloñesa de carne y de lentejas (canelones y lasaña) y salsa de tomate."],
+["Freezer","Armar los medallones de mijo y las hamburguesas de lentejas; freezar."],
+["Hummus y huevos","Hacer el hummus (garbanzos, tahini, limón, ajo) y hervir 12 huevos."],
+["Verduras","Cortar y guardar en tuppers las verduras del wok y las de la carbonada."],
+["Conservación","Heladera de lunes a miércoles; freezer de jueves a domingo, pasando a la heladera la noche anterior."]
+]];
+var REC=[
+["pastel","A","Pastel de papas: de carne y de lentejas","500 g de papa, 1 cda de manteca, leche, nuez moscada, 1 cebolla, ½ morrón, 1 ajo, 1 cdta de pimentón, puré de tomate, 1 caldito. Él: 250 g de carne picada. Ella: 1½ tazas de lentejas cocidas y 150 g de champiñones.","Herví las papas y hacé el puré con manteca, leche, sal y nuez moscada.|Sofreí cebolla, morrón y ajo; sumá la carne desmenuzada (o las lentejas y los champiñones), pimentón, tomate y caldito. Cociná 10 a 15 minutos.|Armá en dos fuentes: puré, relleno, puré y queso rallado.|Gratiná 15 a 20 minutos en horno fuerte."],
+["bolo","A","Boloñesa de carne y de lentejas","1 cebolla, 1 zanahoria rallada, 2 ajos, 1 taza de tomate triturado, orégano. Él: 180 g de carne picada. Ella: 1 taza de lentejas cocidas.","Sofreí la cebolla, la zanahoria y el ajo.|Sumá la carne y dorala (o las lentejas, pisadas un poco).|Agregá el tomate, orégano, sal y un chorrito de agua; cociná 20 minutos.|Servila sobre los fideos con queso rallado. Se congela en porciones."],
+["malfatti","A","Malfatti de espinaca y ricota con salsa de hongos","350 g de ricota, 1 atado de espinaca, 1 huevo, ½ taza de harina, ½ taza de queso rallado, nuez moscada. Salsa: 250 g de champiñones, 1 cebolla chica, 1 ajo, 3 cdas de crema.","Cociná la espinaca tapada sin agua 5 a 7 minutos; escurrila y picala.|Mezclá ricota, huevo, queso, nuez moscada, sal, pimienta, espinaca y harina.|Formá bolitas de 2 cm y herví por tandas hasta que suban (90 segundos).|Salsa: salteá ajo y cebolla, dorá los champiñones a fuego fuerte y terminá con la crema.|Servilos con la salsa y queso rallado."],
+["risotto","A","Risotto de batata","2 batatas, 1 cebolla, 1 taza de arroz doble carolina, 750 ml de caldo, ½ vaso de vino blanco (opcional), 2 cdas de manteca, 80 g de queso rallado, 1 cdta de cúrcuma.","Herví las batatas en cubos en el caldo y reservalo.|Transparentá la cebolla con manteca, sumá la batata, aplastala y agregá cúrcuma.|Incorporá el arroz, el vino y luego el caldo de a cucharones, revolviendo 18 a 20 minutos.|Cerrá con manteca y queso. Él: sumale tiras de cuadril. Ella: garbanzos asados y huevo poché."],
+["milaca","A","Milanesas de calabaza rellenas (y de pollo o soja)","1 calabaza chica, muzzarella, harina, 2 huevos, pan rallado.","Cortá la calabaza en rodajas finas y hornealas 10 a 15 minutos a 180 °C.|Poné muzzarella entre dos rodajas y presioná.|Pasalas por harina, huevo y pan rallado.|Horno a 200 °C hasta dorar de ambos lados. Las de pollo y soja se rebozan igual."],
+["pure","A","Puré cremoso de papa","500 g de papa, 1 cda de manteca, leche tibia, 2 cdas de yogur, nuez moscada.","Herví las papas y pisalas calientes con manteca, leche, yogur, sal y nuez moscada.|Batilo con batidor de mano para que quede cremoso."],
+["musaka","A","Musaka de carne y de lentejas","1 berenjena, 1 zapallito, 1 papa, 1 lata de tomate, ½ cebolla, orégano, 150 g de yogur, 1 huevo, 80 g de queso rallado. Él: 180 g de carne picada. Ella: 1 taza de lentejas.","Cortá las verduras en rodajas de ½ cm, aceitalas y hornealas 15 a 20 minutos a 200 °C.|Sofreí la cebolla, sumá tomate, orégano y la carne o las lentejas; cociná 10 minutos.|Batí el huevo con yogur y queso.|Armá capas de verdura y salsa, terminá con berenjena y la crema de yogur.|Horno 15 a 20 minutos a 200 °C."],
+["guiso","A","Guiso de lentejas","1 cebolla, 1 morrón, 2 ajos, 2 tomates, 1 papa, 1 zanahoria, 200 g de lentejas remojadas, ½ vaso de puré de tomate, vino tinto, pimentón, laurel, orégano, perejil. Él: 150 g de roast beef.","Sofreí cebolla, morrón y ajo; sumá el tomate y un chorro de vino tinto.|Agregá papa, zanahoria, especias y el puré de tomate (él: antes dorá el roast beef en cubos).|Sumá las lentejas, cubrí con agua caliente y cociná tapado a fuego medio hasta que estén tiernas.|Terminá con perejil. Es mejor al otro día."],
+["shak","A","Shakshuka","½ cebolla, ½ morrón, 1 ajo, 1 cdta de comino, 1 cdta de pimentón, 400 g de tomate triturado, 3 huevos por persona, perejil.","Sofreí cebolla y morrón 8 minutos; sumá ajo, comino y pimentón.|Agregá el tomate y cociná 10 a 15 minutos.|Hacé huecos, cascá los huevos, tapá y cociná hasta que cuajen las claras.|Perejil por encima y pan casero para mojar."],
+["torrejas","A","Torrejas de acelga al horno con alioli","1 atado de acelga (hojas), 2 huevos, 1 ajo, nuez moscada, 2 cdas de queso rallado, 3 a 4 cdas de harina. Alioli: 1 huevo, 1 ajo chico, aceite, sal.","Herví la acelga 5 a 7 minutos, exprimila bien y picala.|Mezclala con huevos, ajo, nuez moscada, queso y harina.|Formá las torrejas y hornealas a 200 °C, 5 a 7 minutos por lado.|Alioli: en un vaso alto poné huevo, ajo y sal, cubrí con aceite y procesá con minipimer sin moverla hasta que emulsione."],
+["sopacal","A","Sopa crema de calabaza","1 kg de calabaza, 1 cebolla, 1 puerro, caldo, 2 cdas de crema, nuez moscada, semillas.","Salteá la cebolla y el puerro; sumá la calabaza en cubos y cubrí con caldo.|Cociná 20 minutos y procesá.|Terminá con crema, nuez moscada y semillas tostadas."],
+["berenj","A","Berenjenas rellenas","2 berenjenas, 1 taza de arroz integral cocido, ½ ajo, perejil, queso. Él: atún. Ella: garbanzos y 1 cda de queso crema.","Cortá las berenjenas al medio, hacé cortes en cuadrícula, aceitalas y hornealas boca abajo 20 a 30 minutos.|Sacá la pulpa y pisala con el ajo.|Mezclala con el arroz, perejil y el relleno de cada uno.|Rellená, cubrí con queso y gratiná 10 a 15 minutos a 180 °C."],
+["tartaac","A","Tarta de acelga cremosa","1 masa de tarta integral, 1 atado de acelga cocida, 1 cebolla, 2 huevos, 100 g de queso crema o ricota, nuez moscada, queso rallado.","Salteá la cebolla y la acelga picada.|Mezclá con huevos, queso crema, nuez moscada y queso rallado.|Volcá sobre la masa y horneá 35 minutos a 190 °C."],
+["calzon","A","Calzones de masa casera","Masa de pan casero. Él: jamón y muzzarella. Ella: espinaca salteada, ricota y huevo duro.","Estirá la masa en círculos de 20 cm.|Rellená una mitad y cerrá en media luna, sellando con un tenedor.|Pincelá con aceite y horneá 20 a 25 minutos a 220 °C."],
+["panq","A","Panqueques salados","1 huevo, 1 taza de leche, ¾ taza de harina, ricota, espinaca, nuez moscada, salsa de tomate, queso. Él: jamón.","Batí huevo, leche, harina y sal; cociná panqueques finos en sartén antiadherente.|Rellenalos con ricota, espinaca salteada y nuez moscada.|Enrollá, cubrí con salsa y queso, y gratiná 10 minutos."],
+["ensal","A","Ensaladas (apio, chauchas y remolacha, mediterránea)","Apio, rúcula, perejil, chauchas, remolacha, tomate, aceitunas, cebolla morada, morrón, queso.","Apio, rúcula y perejil: apio en rodajas finas con limón y aceite de oliva.|Chauchas y remolacha: hervidas y en cubos, con cebolla morada, vinagre y aceite.|Mediterránea: tomate, aceitunas, cebolla morada, morrón y queso en cubos, con orégano y aceite de oliva."],
+["budin","A","Budín de yogur y limón (la yapa)","1 pote de yogur y, usando ese pote como medida: ½ de azúcar, ½ de aceite, 3 de harina (mitad integral); 3 huevos, 2 cdtas de polvo de hornear, ralladura de 1 limón.","Mezclá todo.|Horneá 40 minutos a 180 °C."],
+["mijo","B","Medallones de mijo y calabaza","1 taza de mijo, 3 tazas de caldo, ½ calabaza, 1 cebolla, 3 a 4 cdas de harina o avena, 1 cda de pimentón, canela (opcional). Salsa: yogur, limón.","Lavá el mijo y cocinalo en el caldo 40 a 60 minutos; dejalo enfriar.|Salteá la calabaza y la cebolla en cubos chicos hasta dorar.|Mezclá todo, aplastando un poco, con harina o avena, pimentón, sal y pimienta; dejá reposar.|Formá los medallones y hornealos a 180 °C, 5 minutos por lado. Servilos con salsa de yogur y limón."],
+["coliflor","B","Coliflor gratinada","1 coliflor, 1 cda de manteca, 1 cda de harina, 1 taza de leche, queso rallado.","Herví los ramitos 5 minutos y ponelos en una fuente.|Hacé una salsa blanca con manteca, harina y leche; cubrí la coliflor y sumá queso.|Gratiná 15 minutos."],
+["canel","B","Canelones de carne y de ricota","Panqueques (receta de panqueques salados), salsa de tomate, queso. Él: 180 g de carne picada, cebolla y espinaca. Ella: 150 g de ricota, espinaca, nueces y nuez moscada.","Cociná los panqueques finos.|Preparé cada relleno: la carne salteada con cebolla y espinaca; la ricota mezclada con espinaca, nueces y nuez moscada.|Rellená, enrollá y acomodá en una fuente con salsa de tomate y queso.|Gratiná 15 minutos."],
+["wok","B","Wok de vegetales con spaghetti","Cebolla, morrón, zanahoria, zucchini, chauchas, brócoli, 1 ajo, soja, 70 g de spaghetti. Él: 180 g de carne en tiras. Ella: 150 g de tofu.","Cortá las verduras. Dorá a fuego fuerte la carne, o el tofu marinado con soja, y reservalo.|Salteá las verduras 10 minutos, sumá un poco de agua y tapá 5 minutos; terminá destapado 10 minutos más.|Mezclá con el spaghetti cocido, la proteína y un chorro de soja."],
+["carbonada","B","Carbonada","180 g de carne en cubos (él), 1 cebolla, 1 morrón, 2 ajos, pimentón, tomate triturado, 1 papa, 1 batata, zapallo, 2 choclos, caldo. Ella: 1 taza de alubias cocidas.","Dorá la carne en cubos y sofreí cebolla, ajo y morrón.|Sumá pimentón, tomate, papa, batata, zapallo y choclo desgranado.|Cubrí con caldo y cociná 40 minutos. Ella: sumá las alubias 10 minutos antes del final, sin carne."],
+["hamb","B","Hamburguesas en pan casero","Él: 180 g de carne picada, ajo, perejil. Ella: 2 tazas de lentejas cocidas, ½ taza de avena, 1 huevo, cebolla, ajo, pimentón (o la versión de garbanzos). Pan casero, lechuga, tomate, cebolla morada, queso, batatas.","Formá las hamburguesas: la de carne con ajo y perejil; la de lentejas pisando todo junto y dejando reposar 10 minutos.|Cociná en plancha 4 minutos por lado, o la de lentejas en horno a 200 °C 20 minutos.|Armá en pan casero con los extras.|Acompañá con batatas en bastones al horno a 220 °C."],
+["lasana","B","Lasaña de carne y de lentejas","Placas de lasaña, boloñesa de carne y de lentejas (ver Boloñesa), espinaca salteada, salsa blanca liviana, muzzarella.","Preparé las dos boloñesas, la espinaca y la salsa blanca.|En dos fuentes chicas alterná capas de pasta, boloñesa, espinaca, salsa blanca y muzzarella.|Terminá con queso y horneá 30 minutos a 190 °C."],
+["zrell","B","Zapallitos redondos rellenos","4 zapallitos redondos, 1 taza de arroz integral cocido, 1 taza de lentejas, cebolla, queso, perejil.","Herví los zapallitos 10 minutos, cortá la tapa y vaciá con una cuchara.|Mezclá la pulpa con arroz, lentejas, cebolla salteada, queso y perejil.|Rellená y gratiná 15 minutos a 200 °C."],
+["spag","B","Spaghetti con brócoli y ajo","70 g de spaghetti, brócoli, 3 ajos, aceite de oliva, ají molido. Él: atún y 2 huevos duros. Ella: 3 huevos y queso rallado.","Cociná el brócoli en la misma olla del spaghetti los últimos 4 minutos.|Dorá los ajos laminados en aceite de oliva con ají molido.|Mezclá todo y sumá el atún (él) o los huevos poché (ella)."],
+["tortilla","B","Tortilla de papa, cebolla y morrón","250 g de papa, 1 cebolla, ½ morrón, 3 huevos.","Cociná la papa en láminas con la cebolla y el morrón hasta que estén tiernas.|Mezclá con los huevos batidos y cociná 4 minutos por lado."],
+["gramajo","B","Revuelto gramajo al horno","250 g de papa, 3 huevos. Él: jamón. Ella: arvejas y queso.","Horneá la papa en bastones a 220 °C, 30 minutos.|Revolvé los huevos en una sartén y mezclalos con la papa.|Sumá jamón (él) o arvejas y queso (ella)."],
+["frittata","B","Frittata de espinaca y calabaza","Cebolla, calabaza en cubos chicos, espinaca, 3 huevos, queso.","Salteá cebolla, calabaza y espinaca.|Volcá los huevos batidos con queso y cociná tapado a fuego bajo 10 minutos.|Gratiná 2 minutos."],
+["nicoise","B","Ensalada niçoise","Papa, chauchas, tomate, huevos duros, aceitunas. Él: atún. Ella: garbanzos y queso. Vinagreta de mostaza, limón y aceite.","Herví la papa y las chauchas.|Armá con tomate, huevo duro, aceitunas y la proteína de cada uno.|Aderezá con la vinagreta."],
+["pizzeta","B","Pizzeta de masa casera","Masa de pan casero, salsa de tomate, muzzarella. Él: jamón. Ella: espinaca y huevo.","Estirá la masa en círculo y horneá 8 minutos a 230 °C.|Cubrí con salsa, muzzarella y los toppings.|Terminá 5 a 8 minutos."],
+["sopaverd","B","Sopa de verduras","Cebolla, zanahoria, zapallo, papa, caldo. Él: fideos. Ella: 1 taza de garbanzos.","Salteá las verduras en cubos y cubrí con caldo.|Cociná 20 minutos; sumá fideos (él) o garbanzos (ella)."],
+["hummus","B","Hummus casero (la yapa)","1½ tazas de garbanzos cocidos, 2 cdas de tahini, jugo de 1 limón, 1 ajo, sal, aceite de oliva o agua de cocción.","Procesá todo hasta que quede cremoso."]
 ];
-var COMPRAS=[
-["Carnicería",["Cuadril, peceto o nalga: 1 kg (porcionar en 180 g)","Carne picada magra: 600 g"]],
-["Dietética",["Lentejas secas 750 g","Garbanzos secos 750 g (o 4 frascos cocidos)","Soja texturizada 250 g","Arroz yamaní 1 kg","Quinoa 250 g","Avena 1 kg","Nueces y almendras, 200 g de cada una","Semillas (chía, lino, girasol) 200 g","Comino, pimentón ahumado, orégano, ají molido"]],
-["Almacén y súper",["Atún al natural: 3 latas","Tomate triturado: 3 cajas","Pan integral: 2 paquetes","Tapas de tarta integrales: 1 paquete","Aceite de oliva, mostaza, vinagre","Aceitunas: 1 frasco","Salsa de soja"]],
-["Heladera",["Huevos: 2 maples","Yogur natural sin azúcar: 2 kg","Leche: 3 L","Ricota: 1 kg","Queso port salut o cremoso: 500 g","Queso untable: 1 pote","Queso rallado: 150 g","Tofu firme: 2 paquetes de 300 g"]],
-["Verdulería",["Papa 4,5 kg y batata 3 kg","Cebolla 1,5 kg, cebolla morada 2, verdeo 1 atado, ajo 2 cabezas","Morrón rojo 4","Tomate 1,5 kg y cherry 1 bandeja","Zanahoria 1,5 kg","Zapallitos 1,5 kg, berenjena 1, zapallo 1 trozo","Espinaca 3 atados y 1 bolsa de baby","Brócoli 1, repollo colorado ¼, remolacha 2","Apio 1, champiñones 1 bandeja, pepino 2, rabanitos 1","Rúcula y lechuga","Arvejas: 1 lata o bolsa congelada","Perejil, albahaca o menta, jengibre","Palta 4, limones 6","Fruta: 8 bananas, 8 manzanas, 6 mandarinas"]]
-];
-var PREP=[
-["Primero","Hervir 500 g de lentejas y 500 g de garbanzos (olla a presión o frascos cocidos) y cocinar 2 tazas de arroz yamaní."],
-["Horno 1","Bandeja con papas y batatas cortadas para lunes y martes; otra con zanahoria y garbanzos asados con especias para el miércoles."],
-["Mezclas vegetales","Con lentejas, avena, cebolla, ajo, huevo y especias: 4 hamburguesas y 8 albóndigas. Con garbanzos y quinoa: 2 hamburguesas."],
-["Carne de él","Formar 3 porciones de 180 g de picada y porcionar la carne en bolsas de 180 g."],
-["Huevos y salsa","Hervir 12 huevos duros y hacer una olla de salsa de tomate con cebolla y ajo."],
-["Tarta","Hornear la de zapallitos y ricota para el miércoles."],
-["Granola","Avena, nueces, semillas y canela, 20 minutos al horno."],
-["Verduras","Lavar y cortar zanahoria, morrón, cebolla y hojas; guardar en tuppers."],
-["Heladera (lun a mié)","Legumbres cocidas, arroz, huevos duros, tarta, salsa, verduras cortadas, papas y batatas cocidas."],
-["Freezer (jue a dom)","Hamburguesas, albóndigas, carne porcionada y tofu. Pasarlos a la heladera la noche anterior."]
-];
-function el(id){return document.getElementById(id)}
+function el(i){return document.getElementById(i)}
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function st(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}}
 function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-var cur=(new Date().getDay()+6)%7;
-function renderDays(){
-  el("days").innerHTML=DIAS.map(function(d,i){return '<button aria-pressed="'+(i===cur)+'" data-i="'+i+'">'+d.slice(0,3)+'<small>'+(i===(new Date().getDay()+6)%7?'hoy':'')+'</small></button>'}).join("");
+var W=0,TODAY=(new Date().getDay()+6)%7,cur=TODAY;
+function rec(id){return REC.filter(function(r){return r[0]===id})[0]}
+function btns(ids){
+  return '<div class="rb">'+ids.map(function(id){return '<button class="rbtn" data-rec="'+id+'">'+(ids.length>1?'Ver: '+esc(rec(id)[2].split(" (")[0]):'Ver receta')+'</button>'}).join("")+'</div>';
 }
-function pair(a,b){
-  if(b===null)return '<div class="shared"><span class="who" style="color:var(--sh)">Los dos</span>'+esc(a)+'</div>';
-  return '<div class="split"><div class="him"><span class="who">Él</span>'+esc(a)+'</div><div class="her"><span class="who">Ella</span>'+esc(b)+'</div></div>';
+function pair(a,b,ids){
+  return '<div class="split"><div class="him"><span class="who">Él</span>'+esc(a)+'</div><div class="her"><span class="who">Ella</span>'+esc(b)+'</div></div>'+btns(ids);
+}
+function renderWk(){
+  el("wk").innerHTML=["Semana A","Semana B"].map(function(t,i){return '<button aria-pressed="'+(i===W)+'" data-w="'+i+'">'+t+'</button>'}).join("");
+}
+function renderDays(){
+  el("days").innerHTML=DIAS.map(function(d,i){return '<button aria-pressed="'+(i===cur)+'" data-i="'+i+'">'+d.slice(0,3)+'<small>'+(i===TODAY?'hoy':'')+'</small></button>'}).join("");
 }
 function renderDay(){
-  var m=M[cur];
-  el("day").innerHTML='<h2>'+DIAS[cur]+'</h2>'+
-  '<div class="meal"><h3>Desayuno</h3><div class="shared">'+esc(m.k.d)+'</div></div>'+
-  '<div class="meal"><h3>Almuerzo</h3>'+pair(m.al[0],m.al[1])+'</div>'+
-  '<div class="meal"><h3>Merienda</h3><div class="shared">'+esc(m.k.m)+'</div></div>'+
-  '<div class="meal"><h3>Cena</h3>'+pair(m.ce[0],m.ce[1])+'</div>';
+  var m=MENU[W][cur],x=IDX[W],y=YAPA[W],h='<h2>'+DIAS[cur]+'</h2>'+
+  '<div class="meal"><h3>Desayuno</h3><div class="shared">'+esc(DE[x.d[cur]])+'</div></div>'+
+  '<div class="meal"><h3>Almuerzo</h3>'+pair(m[0],m[1],m[4])+'</div>'+
+  '<div class="meal"><h3>Merienda</h3><div class="shared">'+esc(ME[x.m[cur]])+'</div>'+(x.m[cur]===2?btns(["budin"]):'')+'</div>'+
+  '<div class="meal"><h3>Cena</h3>'+pair(m[2],m[3],m[5])+'</div>';
+  if(cur>=5)h+='<div class="meal"><h3>La yapa del finde</h3><div class="shared">'+esc(y[0])+'</div>'+btns([y[1]])+'</div>';
+  el("day").innerHTML=h;
 }
-function renderList(id,key,data,withNote){
-  var s=st(key),h=withNote?'<p class="note">Tocá cada ítem para tacharlo mientras comprás. Cantidades para 2 personas, 1 semana.</p>':'';
+function renderList(id,key,data,note){
+  var s=st(key),h=note?'<p class="note">Tocá cada ítem para tacharlo mientras comprás. Cantidades aproximadas para 2 personas, 1 semana.</p>':'';
   data.forEach(function(sec,si){
     h+='<div class="sec"><h3>'+sec[0]+'</h3>'+sec[1].map(function(t,i){var k=si+"-"+i;return '<label class="it"><input type="checkbox" data-k="'+k+'"'+(s[k]?' checked':'')+'><span>'+esc(t)+'</span></label>'}).join("")+'</div>';
   });
-  h+='<button class="reset" data-r="'+key+'">Destildar todo</button>';
-  el(id).innerHTML=h;
+  el(id).innerHTML=h+'<button class="reset" data-r="'+key+'">Destildar todo</button>';
 }
 function renderPrep(){
-  var d=PREP.map(function(p){return [p[0],[p[1]]]});
-  var s=st("prep"),h='<p class="note">Domingo, 2,5 a 3 horas. Seguí este orden para aprovechar los tiempos de cocción.</p>';
-  PREP.forEach(function(p,i){h+='<label class="it"><input type="checkbox" data-k="'+i+'"'+(s[i]?' checked':'')+'><span><b>'+p[0]+':</b> '+esc(p[1])+'</span></label>'});
-  h+='<p style="margin-top:14px"><button class="reset" data-r="prep">Destildar todo</button></p>';
-  el("prep").innerHTML=h;
+  var key="p"+W,s=st(key),h='<p class="note">Domingo, 2,5 a 3 horas, para la semana '+(W?'B':'A')+'.</p>';
+  PREP[W].forEach(function(p,i){h+='<label class="it"><input type="checkbox" data-k="'+i+'"'+(s[i]?' checked':'')+'><span><b>'+p[0]+':</b> '+esc(p[1])+'</span></label>'});
+  el("prep").innerHTML=h+'<p style="margin-top:14px"><button class="reset" data-r="'+key+'">Destildar todo</button></p>';
+}
+function renderRecetas(){
+  var h='<p class="note">Tocá una receta para ver ingredientes y pasos. Porciones para 2 personas.</p>';
+  [["A","Semana A"],["B","Semana B"]].forEach(function(g){
+    h+='<div class="gh">'+g[1]+'</div>';
+    REC.filter(function(r){return r[1]===g[0]}).forEach(function(r){
+      h+='<details class="rc" id="r-'+r[0]+'"><summary>'+esc(r[2])+'</summary><p class="ing"><b>Ingredientes:</b> '+esc(r[3])+'</p><ol>'+r[4].split("|").map(function(t){return '<li>'+esc(t)+'</li>'}).join("")+'</ol></details>';
+    });
+  });
+  el("recetas").innerHTML=h;
+}
+function renderAll(){renderWk();renderDay();renderList("compras","c"+W,COMPRAS[W],true);renderPrep()}
+function showTab(t){
+  document.querySelectorAll("nav.tabs button").forEach(function(x){x.setAttribute("aria-selected",x.dataset.t===t)});
+  ["menu","compras","prep","recetas"].forEach(function(n){el(n).hidden=n!==t});
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
   if(b.dataset.i!==undefined){cur=+b.dataset.i;renderDays();renderDay();return}
-  if(b.dataset.t){
-    document.querySelectorAll("nav.tabs button").forEach(function(x){x.setAttribute("aria-selected",x===b)});
-    ["menu","compras","prep"].forEach(function(t){el(t).hidden=t!==b.dataset.t});return}
-  if(b.dataset.r){sv(b.dataset.r,{});if(b.dataset.r==="prep")renderPrep();else renderList("compras","compras",COMPRAS,true)}
+  if(b.dataset.w!==undefined){W=+b.dataset.w;renderAll();return}
+  if(b.dataset.t){showTab(b.dataset.t);return}
+  if(b.dataset.rec){showTab("recetas");var d=el("r-"+b.dataset.rec);if(d){d.open=true;d.scrollIntoView({block:"start"})}return}
+  if(b.dataset.r){sv(b.dataset.r,{});if(b.dataset.r.charAt(0)==="p")renderPrep();else renderList("compras","c"+W,COMPRAS[W],true)}
 });
 document.addEventListener("change",function(e){
   var c=e.target;if(c.type!=="checkbox")return;
-  var key=el("prep").contains(c)?"prep":"compras",s=st(key);s[c.dataset.k]=c.checked;sv(key,s);
-  c.nextElementSibling.style.textDecoration="";
+  var key=el("prep").contains(c)?"p"+W:"c"+W,s=st(key);s[c.dataset.k]=c.checked;sv(key,s);
 });
-renderDays();renderDay();renderList("compras","compras",COMPRAS,true);renderPrep();
+renderDays();renderAll();renderRecetas();
 </script>
 </body>
 </html>
